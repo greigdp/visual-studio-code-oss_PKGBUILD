@@ -4,7 +4,7 @@ pkgname=visual-studio-code-oss
 pkgdesc='Visual Studio Code for Linux, Open Source version'
 pkgver=1.0.0
 pkgrel=1
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' 'armv7h')
 url='https://code.visualstudio.com/'
 license=('MIT')
 makedepends=('npm' 'gulp' 'python2')
@@ -26,6 +26,9 @@ case "$CARCH" in
     x86_64)
         _vscode_arch=x64
         ;;
+    armv7h)
+        _vscode_arch=arm
+        ;;
     *)
         # Needed for mksrcinfo
         _vscode_arch=DUMMY
@@ -42,7 +45,8 @@ build() {
     cd "${srcdir}/vscode-${pkgver}"
 
     ./scripts/npm.sh install
-    gulp vscode-linux-${_vscode_arch}
+    # Call gulp manually to override the nodejs 32-bit memory limit
+    node --max_old_space_size=1500 ./node_modules/.bin/gulp vscode-linux-${_vscode_arch}
 }
 
 package() {
